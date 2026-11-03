@@ -1,0 +1,202 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réservation - {{ service.name }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+    }
+    .calendar-cell {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+    /* Date disponible (Vert) */
+    .calendar-cell.available {
+        background-color: #f0fdf4;
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+    .calendar-cell.available:hover {
+        background-color: #dcfce7;
+        border-color: #4ade80;
+    }
+    /* Date indisponible ou passée (Gris) */
+    .calendar-cell.unavailable {
+        background-color: #f8fafc;
+        color: #94a3b8;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    /* Date sélectionnée */
+    .calendar-cell.selected {
+        background-color: var(--salonkee-coral) !important;
+        color: white !important;
+        border-color: var(--salonkee-coral) !important;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="mb-4">
+        <a href="{{ path('app_home') }}" class="text-decoration-none text-muted fw-medium">
+            <i class="fas fa-arrow-left me-1"></i> Retour à l'accueil
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Colonne de gauche : Récapitulatif -->
+        <div class="col-lg-5">
+            <h3 class="fw-bold mb-4 fs-4">Votre rendez-vous</h3>
+            
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="fw-bold text-dark fs-6 mb-0">{{ service.name }}</h5>
+                    <span class="fw-bold text-dark">{{ service.price }} €</span>
+                </div>
+                <div class="d-flex align-items-center text-muted small mb-3">
+                    <i class="far fa-user text-coral me-2"></i>
+                    <span class="text-coral">Salon principal</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between text-muted small pt-2 border-top">
+                    <span><i class="far fa-clock me-1"></i> {{ service.duration }} minutes</span>
+                    <a href="{{ path('app_home') }}" class="text-danger text-decoration-none small fw-semibold">
+                        <i class="far fa-trash-alt me-1"></i> Retirer
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colonne de droite : Calendrier Mensuel et Créneaux -->
+        <div class="col-lg-7">
+            <h3 class="fw-bold mb-4 fs-4">Sélectionnez une date et une heure</h3>
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                
+                <!-- Navigation Mois Précédent / Mois Suivant -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <a href="{{ path('app_booking', {'id': service.id, 'year': prevMonth|date('Y'), 'month': prevMonth|date('m'), 'date': prevMonth|date('Y-m-01')}) }}" class="btn btn-outline-secondary btn-sm rounded-circle">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <h5 class="fw-bold text-dark mb-0 text-capitalize">{{ firstDayOfMonth|date('F Y') }}</h5>
+                    <a href="{{ path('app_booking', {'id': service.id, 'year': nextMonth|date('Y'), 'month': nextMonth|date('m'), 'date': nextMonth|date('Y-m-01')}) }}" class="btn btn-outline-secondary btn-sm rounded-circle">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+
+                <!-- Jours de la semaine -->
+                <div class="calendar-grid text-muted small fw-bold mb-2 text-center">
+                    <div>Lu</div><div>Ma</div><div>Me</div><div>Je</div><div>Ve</div><div>Sa</div><div>Di</div>
+                </div>
+
+                <!-- Grille complète du mois -->
+                <div class="calendar-grid mb-4">
+                    {% for dayData in monthDays %}
+                        {% set cssClass = 'unavailable' %}
+                        {% if dayData.isSelected %}
+                            {% set cssClass = 'selected' %}
+                        {% elseif dayData.isAvailable %}
+                            {% set cssClass = 'available' %}
+                        {% endif %}
+
+                        {% if dayData.isAvailable or dayData.isSelected %}
+                            <a href="{{ path('app_booking', {'id': service.id, 'date': dayData.date|date('Y-m-d'), 'year': firstDayOfMonth|date('Y'), 'month': firstDayOfMonth|date('m')}) }}" class="calendar-cell {{ cssClass }}">
+                                <span>{{ dayData.date|date('j') }}</span>
+                            </a>
+                        {% else %}
+                            <div class="calendar-cell {{ cssClass }}">
+                                <span>{{ dayData.date|date('j') }}</span>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Affichage des créneaux horaires disponibles -->
+                <h6 class="fw-bold mb-3">Heures disponibles pour le {{ selectedDate|date('d/m/Y') }}</h6>
+                
+                {% if slots is not empty %}
+                    <div class="row g-2 mb-4">
+                        {% for slot in slots %}
+                            <div class="col-4 col-md-3">
+                                <button type="button" class="btn btn-outline-dark w-100 py-2 slot-btn rounded-3 fw-semibold" data-time="{{ slot }}">
+                                    {{ slot }}
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-light border rounded-3 p-3 text-muted small mb-4">
+                        <i class="fas fa-info-circle text-coral me-1"></i> Aucune heure disponible pour cette date ou salon fermé.
+                    </div>
+                {% endif %}
+
+                <!-- Formulaire de validation final -->
+                {{ form_start(form) }}
+                    <div class="mb-3 d-none">
+                        {{ form_widget(form.startAt, {'id': 'appointment_startAt'}) }}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.clientName, 'Nom complet', {'label_attr': {'class': 'fw-semibold small mb-1'}}) }}
+                            {{ form_widget(form.clientName, {'attr': {'class': 'form-control rounded-3'}}) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_label(form.clientEmail, 'Adresse email', {'label_attr': {'class': 'fw-semibold small mb-1'}}) }}
+                            {{ form_widget(form.clientEmail, {'attr': {'class': 'form-control rounded-3'}}) }}
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn btn-secondary w-100 py-3 fw-bold shadow-sm mt-3" disabled>
+                        Veuillez sélectionner un créneau horaire
+                    </button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const slotButtons = document.querySelectorAll('.slot-btn');
+        const startAtInput = document.getElementById('appointment_startAt');
+        const submitBtn = document.getElementById('submitBtn');
+        const currentDate = "{{ selectedDate|date('Y-m-d') }}";
+
+        slotButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                slotButtons.forEach(btn => btn.classList.remove('active', 'btn-dark', 'text-white'));
+                slotButtons.forEach(btn => btn.classList.add('btn-outline-dark'));
+
+                this.classList.remove('btn-outline-dark');
+                this.classList.add('active', 'btn-dark', 'text-white');
+
+                const time = this.getAttribute('data-time');
+                startAtInput.value = `${currentDate}T${time}:00`;
+
+                submitBtn.removeAttribute('disabled');
+                submitBtn.classList.remove('btn-secondary');
+                submitBtn.classList.add('btn-coral');
+                submitBtn.textContent = `Confirmer le rendez-vous à ${time}`;
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription - Flore Brésilienne{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h1 class="h3 mb-4 fw-bold text-center text-dark">Créer un compte</h1>
+
+                {% for flash_error in app.flashes('verify_email_error') %}
+                    <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+                {% endfor %}
+
+                {{ form_start(registrationForm) }}
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.lastname, 'Nom', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(registrationForm.lastname) }}
+                        {{ form_errors(registrationForm.lastname) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.firstname, 'Prénom', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(registrationForm.firstname) }}
+                        {{ form_errors(registrationForm.firstname) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.phone, 'Téléphone', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(registrationForm.phone) }}
+                        {{ form_errors(registrationForm.phone) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.email, 'Adresse email', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(registrationForm.email) }}
+                        {{ form_errors(registrationForm.email) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.plainPassword, 'Mot de passe', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                        {{ form_widget(registrationForm.plainPassword) }}
+                        {{ form_errors(registrationForm.plainPassword) }}
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form_widget(registrationForm.agreeTerms) }}
+                        {{ form_label(registrationForm.agreeTerms, "J'accepte les conditions d'utilisation", {'label_attr': {'class': 'form-check-label text-muted small'}}) }}
+                        {{ form_errors(registrationForm.agreeTerms) }}
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-coral py-2 shadow-sm">S'inscrire</button>
+                    </div>
+                {{ form_end(registrationForm) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
