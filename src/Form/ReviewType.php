@@ -15,10 +15,7 @@ class ReviewType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('clientName', TextType::class, [
-                'label' => 'Votre Nom & Prénom',
-                'attr' => ['class' => 'form-control', 'placeholder' => 'ex: Marie Dupont']
-            ])
+            
             ->add('rating', ChoiceType::class, [
                 'label' => 'Note (de 1 à 5 étoiles)',
                 'choices' => [

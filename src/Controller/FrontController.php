@@ -39,31 +39,36 @@ class FrontController extends AbstractController
     }
 
     #[Route('/laisser-un-avis', name: 'app_review_new')]
-    #[IsGranted('ROLE_USER')] // Bloque l'accès si l'utilisateur n'est pas connecté
-    public function newReview(Request $request, EntityManagerInterface $em): Response
-    {
-        $review = new Review();
-// Pré-remplit le nom avec l'utilisateur connecté (adaptez selon les méthodes de votre entité User)
+#[IsGranted('ROLE_USER')]
+public function newReview(Request $request, EntityManagerInterface $em): Response
+{
+    $review = new Review();
     $user = $this->getUser();
+    
     if ($user) {
-        $review->setClientName($user->getUserIdentifier()); // Ou $user->getNom() si le champ existe
+        // Associe l'utilisateur à l'avis
+        $review->setClient($user);
+        
+        // Enregistre automatiquement le prénom (ou le nom) en arrière-plan
+        // Remplacez getFirstname() par la méthode correspondante dans votre entité User
+        $review->setClientName($user->getFirstname()); 
     }
 
-        $form = $this->createForm(ReviewType::class, $review);
-        $form->handleRequest($request);
+    $form = $this->createForm(ReviewType::class, $review);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($review);
-            $em->flush();
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->persist($review);
+        $em->flush();
 
-            $this->addFlash('success', 'Merci ! Votre avis a bien été publié.');
-            return $this->redirectToRoute('app_home');
-        }
-
-        return $this->render('front/new_review.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        $this->addFlash('success', 'Merci ! Votre avis a bien été publié.');
+        return $this->redirectToRoute('app_home');
     }
+
+    return $this->render('front/new_review.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
 
     #[Route('/reserver/{id}', name: 'app_booking')]
     #[IsGranted('ROLE_USER', message: 'Vous devez vous connecter pour prendre un rendez-vous.')]

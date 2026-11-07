@@ -60,6 +60,7 @@
                 <div class="ms-auto d-flex align-items-center gap-2">
                     {% if app.user %}
                         <span class="text-muted small me-2">Bonjour, {{ app.user.email }}</span>
+                        <a href="{{ path('app_account') }}" class="btn btn-outline-dark btn-sm rounded-pill px-3">Mon compte</a>
                         <a href="{{ path('app_logout') }}" class="btn btn-outline-danger btn-sm rounded-pill px-3">Déconnexion</a>
                     {% else %}
                         <a href="{{ path('app_login') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">Connexion</a>

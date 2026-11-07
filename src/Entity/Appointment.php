@@ -20,10 +20,19 @@ class Appointment
     private ?\DateTime $endAt = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $status = null;
+    private ?string $status = 'pending';
 
     #[ORM\Column]
-    private ?bool $depositPaid = null;
+    private ?bool $depositPaid = false;
+
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $totalPrice = null;
+
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $depositAmount = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $stripeSessionId = null;
 
     #[ORM\ManyToOne(inversedBy: 'appointments')]
     #[ORM\JoinColumn(nullable: true)]
@@ -32,6 +41,12 @@ class Appointment
     #[ORM\ManyToOne(inversedBy: 'appointments')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Service $service = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $clientName = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $clientEmail = null;
 
     public function getId(): ?int
     {
@@ -86,6 +101,42 @@ class Appointment
         return $this;
     }
 
+    public function getTotalPrice(): ?float
+    {
+        return $this->totalPrice;
+    }
+
+    public function setTotalPrice(?float $totalPrice): static
+    {
+        $this->totalPrice = $totalPrice;
+
+        return $this;
+    }
+
+    public function getDepositAmount(): ?float
+    {
+        return $this->depositAmount;
+    }
+
+    public function setDepositAmount(?float $depositAmount): static
+    {
+        $this->depositAmount = $depositAmount;
+
+        return $this;
+    }
+
+    public function getStripeSessionId(): ?string
+    {
+        return $this->stripeSessionId;
+    }
+
+    public function setStripeSessionId(?string $stripeSessionId): static
+    {
+        $this->stripeSessionId = $stripeSessionId;
+
+        return $this;
+    }
+
     public function getClient(): ?User
     {
         return $this->client;
@@ -109,13 +160,6 @@ class Appointment
 
         return $this;
     }
-
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $clientName = null;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $clientEmail = null;
 
     public function getClientName(): ?string
     {

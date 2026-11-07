@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon espace personnel - Flore Brésilienne{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h1 class="h3 fw-bold text-dark mb-1">Mon Espace Personnel</h1>
+        <p class="text-muted mb-0">Bienvenue, {{ app.user.email }}. Retrouvez ci-dessous l'historique de vos rendez-vous.</p>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <h4 class="fw-bold text-dark mb-3">Mes Rendez-vous</h4>
+
+        {% if appointments is empty %}
+            <div class="alert alert-light text-center py-4 border rounded-3 text-muted mb-0">
+                Vous n'avez pas encore de rendez-vous enregistré.
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Prestation</th>
+                            <th>Date & Heure</th>
+                            <th>Prix Total</th>
+                            <th>Acompte (20%)</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in appointments %}
+                            <tr>
+                                <td class="fw-semibold">{{ appointment.service.name }}</td>
+                                <td>{{ appointment.startAt ? appointment.startAt|date('d/m/Y à H:i') : 'N/A' }}</td>
+                                <td>{{ appointment.totalPrice }} €</td>
+                                <td>{{ appointment.depositAmount }} €</td>
+                                <td>
+                                    {% if appointment.status == 'confirmed' %}
+                                        <span class="badge bg-success rounded-pill px-3 py-2">Confirmé</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark rounded-pill px-3 py-2">En attente</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

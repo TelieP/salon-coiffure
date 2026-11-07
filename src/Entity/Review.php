@@ -32,6 +32,10 @@ class Review
     #[ORM\Column]
     private ?bool $isVerified = true;
 
+    #[ORM\ManyToOne(inversedBy: 'reviews')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $client = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -107,4 +111,16 @@ class Review
         $this->isVerified = $isVerified;
         return $this;
     }
+    public function getClient(): ?User
+    {
+     return $this->client;
+    }
+
+    public function setClient(?User $client): static
+    {
+         $this->client = $client;
+        return $this;
+    }
+
+
 }

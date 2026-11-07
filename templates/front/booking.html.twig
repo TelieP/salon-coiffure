@@ -145,8 +145,8 @@
                     </div>
                 {% endif %}
 
-                <!-- Formulaire de validation final -->
-                {{ form_start(form) }}
+                <!-- Formulaire de validation final pointant vers Stripe -->
+                {{ form_start(form, {'action': path('app_appointment_checkout', {'id': service.id}), 'method': 'POST'}) }}
                     <div class="mb-3 d-none">
                         {{ form_widget(form.startAt, {'id': 'appointment_startAt'}) }}
                     </div>
@@ -194,7 +194,7 @@
                 submitBtn.removeAttribute('disabled');
                 submitBtn.classList.remove('btn-secondary');
                 submitBtn.classList.add('btn-coral');
-                submitBtn.textContent = `Confirmer le rendez-vous à ${time}`;
+                submitBtn.textContent = `Payer l'acompte (20%) et réserver à ${time}`;
             });
         });
     });

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Laisser un avis - Lauréliebybeauty{% endblock %}
+{% block title %}Laisser un avis {% endblock %}
 
 {% block body %}
 <div class="container my-5" style="max-width: 600px;">
@@ -9,9 +9,7 @@
         <p class="text-muted text-center mb-4">Votre avis nous aide à nous améliorer et guide nos futurs clients.</p>
 
         {{ form_start(form) }}
-            <div class="mb-3">
-                {{ form_row(form.clientName) }}
-            </div>
+            
             <div class="mb-3">
                 {{ form_row(form.rating) }}
             </div>
