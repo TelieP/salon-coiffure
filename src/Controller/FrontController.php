@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Appointment;
 use App\Entity\Service;
 use App\Entity\Review;
+use App\Entity\Product;
 use App\Form\AppointmentType;
 use App\Form\ReviewType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,14 +15,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-
 class FrontController extends AbstractController
 {
-  #[Route('/', name: 'app_home')]
+    #[Route('/', name: 'app_home')]
     public function index(EntityManagerInterface $em): Response
     {
         $services = $em->getRepository(Service::class)->findAll();
         $reviews = $em->getRepository(Review::class)->findBy([], ['createdAt' => 'DESC']);
+        $products = $em->getRepository(Product::class)->findAll(); // Récupération de tous les produits
 
         $totalRating = 0;
         $countReviews = count($reviews);
@@ -33,42 +34,44 @@ class FrontController extends AbstractController
         return $this->render('front/index.html.twig', [
             'services' => $services,
             'reviews' => $reviews,
+            'products' => $products, // Transmission des produits à la vue
             'averageRating' => $averageRating,
             'countReviews' => $countReviews,
         ]);
     }
 
     #[Route('/laisser-un-avis', name: 'app_review_new')]
-#[IsGranted('ROLE_USER')]
-public function newReview(Request $request, EntityManagerInterface $em): Response
-{
-    $review = new Review();
-    $user = $this->getUser();
-    
-    if ($user) {
-        // Associe l'utilisateur à l'avis
-        $review->setClient($user);
+    #[IsGranted('ROLE_USER')]
+    public function newReview(Request $request, EntityManagerInterface $em): Response
+    {
+        $review = new Review();
+        $user = $this->getUser();
         
-        // Enregistre automatiquement le prénom (ou le nom) en arrière-plan
-        // Remplacez getFirstname() par la méthode correspondante dans votre entité User
-        $review->setClientName($user->getFirstname()); 
+        if ($user) {
+            // Associe l'utilisateur à l'avis
+            $review->setClient($user);
+            
+            // Enregistre automatiquement le nom (ou prénom) en arrière-plan
+            if (method_exists($user, 'getFirstname')) {
+                $review->setClientName($user->getFirstname());
+            }
+        }
+
+        $form = $this->createForm(ReviewType::class, $review);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($review);
+            $em->flush();
+
+            $this->addFlash('success', 'Merci ! Votre avis a bien été publié.');
+            return $this->redirectToRoute('app_home');
+        }
+
+        return $this->render('front/new_review.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
-
-    $form = $this->createForm(ReviewType::class, $review);
-    $form->handleRequest($request);
-
-    if ($form->isSubmitted() && $form->isValid()) {
-        $em->persist($review);
-        $em->flush();
-
-        $this->addFlash('success', 'Merci ! Votre avis a bien été publié.');
-        return $this->redirectToRoute('app_home');
-    }
-
-    return $this->render('front/new_review.html.twig', [
-        'form' => $form->createView(),
-    ]);
-}
 
     #[Route('/reserver/{id}', name: 'app_booking')]
     #[IsGranted('ROLE_USER', message: 'Vous devez vous connecter pour prendre un rendez-vous.')]
@@ -96,7 +99,7 @@ public function newReview(Request $request, EntityManagerInterface $em): Respons
             $loopDate = new \DateTime("$year-$month-$day");
             $isPast = $loopDate < $today;
             
-            // Exemple : Le salon est fermé le dimanche (jour 7) ou les jours passés
+            // Le salon est fermé le dimanche (jour 7) ou les jours passés
             $isClosed = ($loopDate->format('N') == 7); 
             $isAvailable = !$isPast && !$isClosed;
 
@@ -190,5 +193,4 @@ public function newReview(Request $request, EntityManagerInterface $em): Respons
     {
         return $this->render('front/cgv.html.twig');
     }
-
 }

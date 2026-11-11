@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }} - Flore Brésilienne{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}" class="text-decoration-none">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_shop') }}" class="text-decoration-none">Boutique</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5 align-items-center">
+        <!-- Image du produit -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <img src="{{ product.image ? asset('images/' ~ product.image) : asset('images/image01.jpeg') }}" 
+     class="card-img-top rounded-top-4" 
+     alt="{{ product.name }}" 
+     style="height: 220px; object-fit: contain;">
+            </div>
+        </div>
+
+        <!-- Informations et actions d'achat -->
+        <div class="col-md-6">
+            <h1 class="fw-bold mb-3">{{ product.name }}</h1>
+            <h3 class="text-primary fw-bold mb-4">{{ product.price|number_format(2, ',', ' ') }} €</h3>
+            
+            <p class="text-muted mb-4">{{ product.description|striptags }}</p>
+
+            <div class="mb-4">
+                <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">En stock</span>
+            </div>
+
+            <!-- Boutons d'action -->
+            {# Formulaire d'ajout au panier avec choix de la quantité #}
+<form action="{{ path('app_cart_add', {id: product.id}) }}" method="POST" class="mb-3">
+    <div class="row align-items-center g-3 mb-4">
+        <div class="col-auto">
+            <label for="quantity" class="fw-bold text-muted">Quantité :</label>
+        </div>
+        <div class="col-auto">
+            <input type="number" name="quantity" id="quantity" value="1" min="1" max="10" class="form-control text-center rounded-pill" style="width: 80px;">
+        </div>
+    </div>
+
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold shadow-sm">
+            <i class="fas fa-shopping-cart me-2"></i> Ajouter au panier
+        </button>
+        <a href="{{ path('app_shop') }}" class="btn btn-outline-secondary rounded-pill py-2">
+            &larr; Retour à la boutique
+        </a>
+    </div>
+</form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Panier - Flore Brésilienne{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <h1 class="fw-bold mb-4">Mon Panier</h1>
+
+    {% if items|length > 0 %}
+        <div class="row g-5">
+            <div class="col-lg-8">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Produit</th>
+                                <th>Prix unitaire</th>
+                                <th>Quantité</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ item.product.image ? asset('images/' ~ item.product.image) : asset('images/image01.jpeg') }}" alt="{{ item.product.name }}" class="rounded-3 me-3" style="width: 50px; height: 50px; object-fit: contain; background: #f8f9fa;">
+                                            <span class="fw-bold">{{ item.product.name }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ item.product.price|number_format(2, ',', ' ') }} €</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td class="fw-bold text-primary">{{ (item.product.price * item.quantity)|number_format(2, ',', ' ') }} €</td>
+                                    <td>
+                                        <a href="{{ path('app_cart_remove', {id: item.product.id}) }}" class="btn btn-sm btn-outline-danger rounded-circle">
+                                            <i class="fas fa-trash"></i> &times;
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-light">
+                    <h4 class="fw-bold mb-3">Récapitulatif</h4>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Total panier</span>
+                        <span class="fw-bold fs-4 text-primary">{{ total|number_format(2, ',', ' ') }} €</span>
+                    </div>
+                    <a href="{{ path('app_cart_stripe_checkout') }}" class="btn btn-primary rounded-pill py-3 fw-bold w-100 shadow-sm">
+    Procéder au paiement
+</a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <p class="text-muted fs-5 mb-4">Votre panier est actuellement vide.</p>
+            <a href="{{ path('app_shop') }}" class="btn btn-dark rounded-pill px-5 py-3 fw-semibold shadow-sm">
+                Découvrir la boutique
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

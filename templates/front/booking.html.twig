@@ -154,11 +154,11 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             {{ form_label(form.clientName, 'Nom complet', {'label_attr': {'class': 'fw-semibold small mb-1'}}) }}
-                            {{ form_widget(form.clientName, {'attr': {'class': 'form-control rounded-3'}}) }}
+                            {{ form_widget(form.clientName, {'attr': {'class': 'form-control rounded-3', 'value': (app.user.firstname ~ ' ' ~ app.user.lastname)|trim, 'readonly': true}}) }}
                         </div>
                         <div class="col-md-6 mb-3">
                             {{ form_label(form.clientEmail, 'Adresse email', {'label_attr': {'class': 'fw-semibold small mb-1'}}) }}
-                            {{ form_widget(form.clientEmail, {'attr': {'class': 'form-control rounded-3'}}) }}
+                            {{ form_widget(form.clientEmail, {'attr': {'class': 'form-control rounded-3', 'value': app.user.email, 'readonly': true}}) }}
                         </div>
                     </div>
 

@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès restreint - Flore Brésilienne{% endblock %}
+
+{% block body %}
+<div class="container my-5 text-center" style="min-height: 60vh; display: flex; align-items: center; justify-content: center;">
+    <div class="card border-0 shadow-sm rounded-4 p-5 bg-white mx-auto" style="max-width: 550px; width: 100%;">
+        <div class="mb-3 text-warning">
+            <i class="fas fa-lock fa-3x"></i>
+        </div>
+        <h1 class="h3 fw-bold text-dark mb-3">Accès restreint</h1>
+        <p class="text-muted mb-4">
+            Désolé, vous n'avez pas les autorisations nécessaires pour accéder à l'espace administrateur. 
+        </p>
+        <div>
+            <a href="{{ path('app_home') }}" class="btn btn-dark rounded-pill px-4 py-2 fw-semibold">
+                Retour à l'accueil
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -25,16 +25,30 @@ class AppointmentController extends AbstractController
         $totalPrice = $service->getPrice();
         $depositAmount = round($totalPrice * 0.20, 2);
 
+        // Récupération sécurisée des données du formulaire (nom, email et date/heure)
+        $formData = $request->request->all('appointment');
+        $clientName = $formData['clientName'] ?? ($user->getFirstname() . ' ' . $user->getLastname());
+        $clientEmail = $formData['clientEmail'] ?? $user->getEmail();
+        $startAtStr = $formData['startAt'] ?? null;
+
         // 1. Pré-enregistrement du rendez-vous
         $appointment = new Appointment();
         $appointment->setClient($user);
+        $appointment->setClientName(trim($clientName));
+        $appointment->setClientEmail($clientEmail);
         $appointment->setService($service);
         $appointment->setTotalPrice($totalPrice);
         $appointment->setDepositAmount($depositAmount);
         $appointment->setStatus('pending');
         $appointment->setDepositPaid(false);
         
-        $appointmentDate = new \DateTime($request->request->get('date', 'now'));
+        // Récupération de la date et l'heure précise choisie par l'utilisateur
+        if ($startAtStr) {
+            $appointmentDate = new \DateTime($startAtStr);
+        } else {
+            $appointmentDate = new \DateTime('now');
+        }
+        
         $appointment->setStartAt($appointmentDate);
         
         $endAt = clone $appointmentDate;
@@ -48,7 +62,7 @@ class AppointmentController extends AbstractController
         Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
 
         $session = Session::create([
-            'customer_email' => $user->getEmail(),
+            'customer_email' => $clientEmail,
             'line_items' => [[
                 'price_data' => [
                     'currency' => 'eur',
