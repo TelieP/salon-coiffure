@@ -45,35 +45,36 @@
                 font-weight: 600;
             }
             .star-rating { color: #f5a623; }
-/* Navbar fixe avec effet blur élégant */
+/* Navbar fixe avec effet blur élégant et hauteur réduite */
 .navbar.fixed-top {
-    background-color: rgb(255, 255, 255, 0.85) !important;
+    background-color: rgba(255, 255, 255, 0.85) !important;
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px); /* Compatibilité Safari */
+    -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease-in-out;
+    padding-top: 0.2rem !important;
+    padding-bottom: 0.2rem !important;
 }
 
-/* Ajustement de la taille du logo pour qu'il s'intègre parfaitement */
+/* Agrandissement du logo pour plus de visibilité */
 .navbar-brand img {
-    height: 70px !important;
+    height: 95px !important;
     width: auto;
+    max-height: none;
 }
 
-/* Espacement du corps pour que le contenu ne se cache pas sous la navbar fixe */
+/* Ajustement du décalage du corps par rapport à la nouvelle hauteur de la navbar */
 body {
-    padding-top: 95px;
-}
-        </style>
+    padding-top: 80px;
+}    </style>
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
-        <!-- Barre de Navigation -->
-     <!-- Barre de Navigation avec effet transparent au sommet -->
+      
 <nav id="mainNavbar" class="navbar navbar-expand-lg navbar-light fixed-top transition-all py-3">
     <div class="container">
         <a class="navbar-brand" href="{{ path('app_home') }}">
-            <img src="{{ asset('images/logo.png') }}" alt="Flore Brésilienne" style="height: 110px; width: auto;">
+            <img src="{{ asset('images/logo.png') }}" alt="Flore Brésilienne" style="height: 220px; width: auto;">
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -103,11 +104,14 @@ body {
             <!-- Boutons de compte -->
             <div class="d-flex align-items-center gap-2">
                 {% if app.user %}
-                    <span class="fw-semibold text-dark me-2">Bonjour {{ app.user.lastname }}</span>
+                    <span class="fw-semibold text-dark me-2">Bonjour {{ app.user.lastname }}
+                        <i class="fas fa-smile fa-lg text-warning"></i>
+                    </span>
                     <a href="{{ path('app_account') }}" class="btn btn-outline-dark rounded-pill px-3">Mon compte</a>
                     <a href="{{ path('app_logout') }}" class="btn btn-outline-danger rounded-pill px-3">Déconnexion</a>
                 {% else %}
                     <a href="{{ path('app_login') }}" class="btn btn-outline-dark rounded-pill px-3">Connexion</a>
+                    <a href="{{ path('app_register') }}" class="btn btn-coral rounded-pill px-3">Inscription</a>
                 {% endif %}
             </div>
         </div>

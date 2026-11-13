@@ -1,0 +1,186 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Tableau de bord{% endblock %}
+
+{% block main %}
+<div class="row g-4 mb-4">
+    <!-- RDV en attente -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border-start border-warning border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">RDV en attente</h6>
+                    <h2 class="fw-bold text-dark mb-0">{{ pendingAppointments }}</h2>
+                </div>
+                <div class="bg-warning-subtle text-warning rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <i class="fas fa-clock fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RDV prévus / confirmés -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border-start border-success border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">RDV Confirmés</h6>
+                    <h2 class="fw-bold text-dark mb-0">{{ confirmedAppointments }}</h2>
+                </div>
+                <div class="bg-success-subtle text-success rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <i class="fas fa-calendar-check fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Utilisateurs inscrits -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border-start border-muted border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Utilisateurs inscrits</h6>
+                    <h2 class="fw-bold text-dark mb-0">{{ totalUsers }}</h2>
+                </div>
+                <div class="bg-muted-subtle text-muted rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <i class="fas fa-users fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avis à modérer -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border-start border-info border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Avis à modérer</h6>
+                    <h2 class="fw-bold text-dark mb-0">{{ pendingReviews }}</h2>
+                </div>
+                <div class="bg-info-subtle text-info rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <i class="fas fa-comments fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- ... (vos blocs col-md-3 pour les compteurs) ... -->
+</div>
+
+<!-- Section du Graphique -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h5 class="fw-bold text-dark mb-4"><i class="fas fa-chart-line text-primary me-2"></i> Évolution des rendez-vous</h5>
+            <div style="position: relative; height: 350px; width: 100%;">
+                <canvas id="appointmentsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inclusion de Chart.js via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('appointmentsChart').getContext('2d');
+        
+        // Données injectées depuis Symfony
+        const months = {{ chartMonths|json_encode|raw }};
+        const counts = {{ chartCounts|json_encode|raw }};
+
+        new Chart(ctx, {
+            type: 'line', // Vous pouvez mettre 'bar' pour des bâtons
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Nombre de rendez-vous',
+                    data: counts,
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    borderWidth: 3,
+                    tension: 0.3, // Courbe légèrement lissée
+                    fill: true,
+                    pointBackgroundColor: '#4e73df',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+
+    // ajout d'un fond dégradé pour le graphique
+    new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Nombre de rendez-vous',
+                    data: counts,
+                    borderColor: '#4e73df',
+                    backgroundColor: function(context) {
+                        const chart = context.chart;
+                        const {ctx, chartArea} = chart;
+                        if (!chartArea) return null;
+                        const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                        gradient.addColorStop(0, 'rgba(78, 115, 223, 0.4)');
+                        gradient.addColorStop(1, 'rgba(78, 115, 223, 0.0)');
+                        return gradient;
+                    },
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#4e73df',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false // Cache la légende si elle fait doublon
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+</script>
+
+{% endblock %}
